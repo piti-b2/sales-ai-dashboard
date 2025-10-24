@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { MetricCard } from '@/components/MetricCard'
 import {
   LineChart,
@@ -79,17 +80,74 @@ const salesData = [
   { date: 'Sun', amount: 18000 },
 ]
 
+type Channel = 'all' | 'line' | 'facebook' | 'instagram' | 'whatsapp' | 'tiktok' | 'shopee'
+
 export default function Home() {
+  const [selectedChannel, setSelectedChannel] = useState<Channel>('all')
+
+  const channels = [
+    { id: 'all' as Channel, name: 'All Channels', icon: '📊', color: 'bg-gray-100 text-gray-700 hover:bg-gray-200', ring: 'ring-gray-400' },
+    { id: 'line' as Channel, name: 'LINE', icon: '💬', color: 'bg-green-100 text-green-700 hover:bg-green-200', ring: 'ring-green-400' },
+    { id: 'facebook' as Channel, name: 'Facebook', icon: '👥', color: 'bg-blue-100 text-blue-700 hover:bg-blue-200', ring: 'ring-blue-400' },
+    { id: 'instagram' as Channel, name: 'Instagram', icon: '📷', color: 'bg-pink-100 text-pink-700 hover:bg-pink-200', ring: 'ring-pink-400' },
+    { id: 'whatsapp' as Channel, name: 'WhatsApp', icon: '💚', color: 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200', ring: 'ring-emerald-400' },
+    { id: 'tiktok' as Channel, name: 'TikTok', icon: '🎵', color: 'bg-slate-100 text-slate-700 hover:bg-slate-200', ring: 'ring-slate-400' },
+    { id: 'shopee' as Channel, name: 'Shopee', icon: '🛒', color: 'bg-orange-100 text-orange-700 hover:bg-orange-200', ring: 'ring-orange-400' },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
+      <div className="space-y-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
+        </div>
+        
+        {/* Channel Filter - Mobile Optimized */}
+        <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex items-center gap-2 min-w-max md:flex-wrap">
+            {channels.map((channel) => (
+              <button
+                key={channel.id}
+                onClick={() => setSelectedChannel(channel.id)}
+                className={`
+                  flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition-all whitespace-nowrap
+                  ${selectedChannel === channel.id 
+                    ? `${channel.color} ring-2 ring-offset-1 ${channel.ring}`
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                  }
+                `}
+              >
+                <span className="text-base md:text-lg">{channel.icon}</span>
+                <span className="hidden sm:inline">{channel.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Selected Channel Badge - Mobile Optimized */}
+      {selectedChannel !== 'all' && (
+        <div className="flex items-center justify-between gap-2 px-3 md:px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-xs md:text-sm text-blue-700 flex items-center gap-1.5">
+            <span className="text-base">{channels.find(c => c.id === selectedChannel)?.icon}</span>
+            <span>
+              <span className="hidden sm:inline">Showing: </span>
+              <strong>{channels.find(c => c.id === selectedChannel)?.name}</strong>
+            </span>
+          </span>
+          <button
+            onClick={() => setSelectedChannel('all')}
+            className="text-blue-600 hover:text-blue-800 font-medium text-xs md:text-sm px-2 py-1 hover:bg-blue-100 rounded"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Metric Cards - Mobile Optimized */}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <MetricCard
           title="Total Messages"
           value={formatNumber(43624)}
@@ -128,22 +186,22 @@ export default function Home() {
         />
       </div>
 
-      {/* Main Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Main Charts - Mobile Optimized */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Outgoing vs Incoming Messages */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Outgoing vs Incoming</h2>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg font-medium">
-                Line graph
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-base md:text-lg font-semibold text-gray-900">Outgoing vs Incoming</h2>
+            <div className="flex space-x-1 md:space-x-2">
+              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm bg-blue-50 text-blue-600 rounded-lg font-medium">
+                Line
               </button>
-              <button className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium">
-                Bar graph
+              <button className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium">
+                Bar
               </button>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={messageData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
@@ -177,9 +235,9 @@ export default function Home() {
         </div>
 
         {/* AI vs Admin Performance */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">AI vs Admin Performance</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">AI vs Admin Performance</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={performanceData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} />
@@ -199,12 +257,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Additional Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Additional Charts - Mobile Optimized */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Lead Distribution */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Lead Distribution</h2>
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">Lead Distribution</h2>
+          <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
                 data={leadData}
@@ -237,9 +295,9 @@ export default function Home() {
         </div>
 
         {/* Response Time */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Average Response Time</h2>
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">Average Response Time</h2>
+          <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={responseTimeData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="time" stroke="#9ca3af" fontSize={12} />
@@ -263,9 +321,9 @@ export default function Home() {
         </div>
 
         {/* Daily Sales */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Daily Sales</h2>
-          <ResponsiveContainer width="100%" height={250}>
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">Daily Sales</h2>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />

@@ -13,17 +13,21 @@ import {
   HelpCircle,
   ChevronLeft,
   Menu,
-  Bot
+  Bot,
+  Brain,
+  Zap,
+  BarChart3
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const menuItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Overview', href: '/', icon: LayoutDashboard },
+  { name: 'Real-time Data', href: '/dashboard', icon: BarChart3 },
+  { name: 'AI Insights', href: '/ai-insights', icon: Brain },
+  { name: 'Predictions', href: '/predictive', icon: Zap },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
   { name: 'Sales', href: '/sales', icon: DollarSign },
-  { name: 'AI Performance', href: '/ai', icon: Bot },
 ]
 
 const bottomMenuItems = [
@@ -69,7 +73,7 @@ export function Sidebar() {
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg">Sales AI</span>
+              <span className="font-bold text-lg">MAAS AI</span>
             </div>
           )}
           <button
