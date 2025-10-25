@@ -25,6 +25,8 @@ import {
   Loader2,
   Target,
   HelpCircle,
+  Sparkles,
+  Zap,
 } from 'lucide-react'
 
 export default function AIInsightsPage() {
@@ -32,26 +34,37 @@ export default function AIInsightsPage() {
   const [faqData, setFaqData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState(30)
+  const [useAI, setUseAI] = useState(false) // Toggle between Rule-based and AI
 
   useEffect(() => {
     fetchInsights()
-  }, [days])
+  }, [days, useAI])
 
   const fetchInsights = async () => {
     setLoading(true)
     try {
+      const endpoint = useAI 
+        ? `/api/analytics/ai-insights-advanced?days=${days}&limit=100`
+        : `/api/analytics/ai-insights?days=${days}`
+      
       const [insightsRes, faqRes] = await Promise.all([
-        fetch(`/api/analytics/ai-insights?days=${days}`),
+        fetch(endpoint),
         fetch(`/api/analytics/faq?days=${days}`)
       ])
       
       const insights = await insightsRes.json()
       const faq = await faqRes.json()
       
+      if (!insights.success) {
+        console.error('API Error:', insights.error)
+        alert(insights.error + '\n\n' + (insights.hint || ''))
+      }
+      
       setData(insights.data)
       setFaqData(faq.data)
     } catch (error) {
       console.error('Error fetching insights:', error)
+      alert('Error loading data. Check console for details.')
     } finally {
       setLoading(false)
     }
@@ -90,30 +103,63 @@ export default function AIInsightsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Brain className="w-8 h-8 text-purple-600" />
             AI Insights
           </h1>
-          <p className="text-gray-600 mt-1">Deep analysis powered by AI</p>
+          <p className="text-gray-600 mt-1">
+            {useAI ? (
+              <span className="flex items-center gap-1">
+                <Sparkles className="w-4 h-4 text-purple-600" />
+                Powered by OpenAI GPT-4o-mini
+              </span>
+            ) : (
+              'Rule-based analysis'
+            )}
+          </p>
         </div>
 
-        {/* Time Range */}
-        <div className="flex gap-2">
-          {[7, 30, 90].map(d => (
-            <button
-              key={d}
-              onClick={() => setDays(d)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                days === d
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-              }`}
-            >
-              {d} days
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* AI Toggle */}
+          <button
+            onClick={() => setUseAI(!useAI)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+              useAI
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {useAI ? (
+              <>
+                <Sparkles className="w-4 h-4" />
+                AI Analysis
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4" />
+                Use AI
+              </>
+            )}
+          </button>
+
+          {/* Time Range */}
+          <div className="flex gap-2">
+            {[7, 30, 90].map(d => (
+              <button
+                key={d}
+                onClick={() => setDays(d)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  days === d
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -322,6 +368,62 @@ export default function AIInsightsPage() {
                 <Bar dataKey="count" fill="#6366f1" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </>
+      )}
+
+      {/* AI-Specific Features */}
+      {useAI && data.topKeywords && (
+        <>
+          {/* Top Keywords */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              Top Keywords (AI Extracted)
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {data.topKeywords.slice(0, 30).map((item: any, index: number) => (
+                <span
+                  key={index}
+                  className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
+                >
+                  {item.keyword} ({item.count})
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Urgency Distribution */}
+          {data.urgencyDistribution && (
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Urgency Distribution</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <p className="text-sm text-green-600 font-medium">Low</p>
+                  <p className="text-2xl font-bold text-green-700">{data.urgencyDistribution.low}</p>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                  <p className="text-sm text-yellow-600 font-medium">Medium</p>
+                  <p className="text-2xl font-bold text-yellow-700">{data.urgencyDistribution.medium}</p>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <p className="text-sm text-red-600 font-medium">High</p>
+                  <p className="text-2xl font-bold text-red-700">{data.urgencyDistribution.high}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI Confidence */}
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-indigo-900">AI Analysis Confidence</h3>
+                <p className="text-3xl font-bold text-indigo-700 mt-2">{data.avgConfidence}%</p>
+                <p className="text-xs text-indigo-600 mt-1">Average confidence score</p>
+              </div>
+              <Sparkles className="w-12 h-12 text-indigo-400" />
+            </div>
           </div>
         </>
       )}

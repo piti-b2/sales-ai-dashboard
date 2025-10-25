@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -13,7 +14,6 @@ import {
   HelpCircle,
   ChevronLeft,
   Menu,
-  Bot,
   Brain,
   Zap,
   BarChart3
@@ -68,11 +68,23 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-          {!collapsed && (
+          {collapsed ? (
+            <Image 
+              src="/image/company-logo-1080.png"
+              alt="Company Logo"
+              width={32}
+              height={32}
+              className="rounded-lg mx-auto"
+            />
+          ) : (
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
+              <Image 
+                src="/image/company-logo-1080.png"
+                alt="Company Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="font-bold text-lg">MAAS AI</span>
             </div>
           )}

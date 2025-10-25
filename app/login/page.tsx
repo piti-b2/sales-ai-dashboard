@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Mail,
   Lock,
   Eye,
   EyeOff,
-  Bot,
   ArrowRight,
   CheckCircle,
   AlertCircle,
@@ -68,8 +68,15 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4">
-              <Bot className="w-8 h-8 text-white" />
+            <div className="inline-flex items-center justify-center mb-4">
+              <Image 
+                src="/image/company-logo-1080.png"
+                alt="Company Logo"
+                width={80}
+                height={80}
+                className="rounded-2xl"
+                priority
+              />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               MAAS AI System
@@ -201,7 +208,7 @@ export default function LoginPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/image/login.png')",
+            backgroundImage: "url('/image/login.jpg')",
           }}
         >
           {/* Overlay for better text readability */}
