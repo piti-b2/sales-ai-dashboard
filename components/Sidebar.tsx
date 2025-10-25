@@ -85,7 +85,7 @@ export function Sidebar() {
                 height={32}
                 className="rounded-lg"
               />
-              <span className="font-bold text-lg">MAAS AI</span>
+              <span className="font-bold text-lg text-black">MAAS AI</span>
             </div>
           )}
           <button

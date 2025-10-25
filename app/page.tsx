@@ -28,6 +28,7 @@ import {
   UserCheck,
   Clock,
   Target,
+  Calendar,
 } from 'lucide-react'
 import { formatNumber, formatCurrency } from '@/lib/utils'
 
@@ -80,10 +81,71 @@ const salesData = [
   { date: 'Sun', amount: 18000 },
 ]
 
+// NEW: Top Products Data (สินค้าขายดี)
+const topProductsData = [
+  { name: 'ครีมบำรุงผิว Premium', sales: 245, revenue: 122500, color: '#3b82f6' },
+  { name: 'เซรั่มหน้าใส', sales: 198, revenue: 99000, color: '#8b5cf6' },
+  { name: 'มาส์กหน้า 7 วัน', sales: 167, revenue: 50100, color: '#ec4899' },
+  { name: 'โลชั่นบำรุงผิว', sales: 145, revenue: 43500, color: '#f97316' },
+  { name: 'ครีมกันแดด SPF50', sales: 132, revenue: 52800, color: '#eab308' },
+]
+
+// NEW: Peak Hours Data (เวลาที่ขายดี)
+const peakHoursData = [
+  { hour: '00:00', orders: 5, amount: 12000 },
+  { hour: '03:00', orders: 3, amount: 7500 },
+  { hour: '06:00', orders: 8, amount: 18000 },
+  { hour: '09:00', orders: 25, amount: 62500 },
+  { hour: '12:00', orders: 42, amount: 105000 },
+  { hour: '15:00', orders: 38, amount: 95000 },
+  { hour: '18:00', orders: 55, amount: 137500 },
+  { hour: '21:00', orders: 48, amount: 120000 },
+]
+
+// NEW: Admin Sales Performance (แอดมินขายได้เยอะ)
+const adminSalesData = [
+  { name: 'Admin A', sales: 125, revenue: 312500, orders: 145, color: '#3b82f6' },
+  { name: 'Admin B', sales: 98, revenue: 245000, orders: 112, color: '#8b5cf6' },
+  { name: 'Admin C', sales: 87, revenue: 217500, orders: 98, color: '#ec4899' },
+  { name: 'Admin D', sales: 76, revenue: 190000, orders: 85, color: '#f97316' },
+  { name: 'AI Bot', sales: 456, revenue: 1140000, orders: 523, color: '#22c55e' },
+]
+
+// NEW: Customer Demographics (ข้อมูลลูกค้า)
+const provinceData = [
+  { name: 'กรุงเทพฯ', customers: 1245, color: '#3b82f6' },
+  { name: 'เชียงใหม่', customers: 456, color: '#8b5cf6' },
+  { name: 'ภูเก็ต', customers: 389, color: '#ec4899' },
+  { name: 'ขอนแก่น', customers: 312, color: '#f97316' },
+  { name: 'อื่นๆ', customers: 1598, color: '#94a3b8' },
+]
+
+const ageData = [
+  { range: '18-24', customers: 1245, percentage: 31, color: '#3b82f6' },
+  { range: '25-34', customers: 1876, percentage: 47, color: '#8b5cf6' },
+  { range: '35-44', customers: 623, percentage: 16, color: '#ec4899' },
+  { range: '45+', customers: 256, percentage: 6, color: '#f97316' },
+]
+
+const genderData = [
+  { name: 'หญิง', value: 2845, percentage: 71, color: '#ec4899' },
+  { name: 'ชาย', value: 1045, percentage: 26, color: '#3b82f6' },
+  { name: 'ไม่ระบุ', value: 110, percentage: 3, color: '#94a3b8' },
+]
+
 type Channel = 'all' | 'line' | 'facebook' | 'instagram' | 'whatsapp' | 'tiktok' | 'shopee'
 
 export default function Home() {
   const [selectedChannel, setSelectedChannel] = useState<Channel>('all')
+  const [dateRange, setDateRange] = useState(7) // 7, 30, 90 days
+  
+  // Calculate date range display
+  const getDateRangeText = () => {
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - dateRange)
+    return `${startDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  }
 
   const channels = [
     { id: 'all' as Channel, name: 'All Channels', icon: '📊', color: 'bg-gray-100 text-gray-700 hover:bg-gray-200', ring: 'ring-gray-400' },
@@ -99,9 +161,31 @@ export default function Home() {
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
       <div className="space-y-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-sm md:text-base text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              {getDateRangeText()}
+            </p>
+          </div>
+          
+          {/* Date Range Filter */}
+          <div className="flex gap-2">
+            {[7, 30, 90].map(days => (
+              <button
+                key={days}
+                onClick={() => setDateRange(days)}
+                className={`px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
+                  dateRange === days
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {days} วัน
+              </button>
+            ))}
+          </div>
         </div>
         
         {/* Channel Filter - Mobile Optimized */}
@@ -339,6 +423,176 @@ export default function Home() {
               <Bar dataKey="amount" fill="#3b82f6" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* NEW SECTION: Top Products (สินค้าขายดี) */}
+      <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          🏆 สินค้าขายดี Top 5
+        </h2>
+        <div className="space-y-4">
+          {topProductsData.map((product, index) => (
+            <div key={product.name} className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                   style={{ backgroundColor: product.color }}>
+                {index + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+                <p className="text-xs text-gray-500">ขายได้ {product.sales} ชิ้น</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-gray-900">{formatCurrency(product.revenue)}</p>
+                <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
+                  <div className="h-2 rounded-full" 
+                       style={{ 
+                         width: `${(product.sales / topProductsData[0].sales) * 100}%`,
+                         backgroundColor: product.color 
+                       }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* NEW SECTION: Peak Hours & Admin Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Peak Hours (เวลาที่ขายดี) */}
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
+            ⏰ เวลาที่ขายดี
+          </h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={peakHoursData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="hour" stroke="#9ca3af" fontSize={12} />
+              <YAxis stroke="#9ca3af" fontSize={12} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#fff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                }}
+                formatter={(value: number, name: string) => {
+                  if (name === 'amount') return [formatCurrency(value), 'ยอดขาย']
+                  return [value, 'ออเดอร์']
+                }}
+              />
+              <Legend />
+              <Bar dataKey="orders" fill="#3b82f6" radius={[8, 8, 0, 0]} name="จำนวนออเดอร์" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Admin Sales Performance (แอดมินขายได้เยอะ) */}
+        <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
+            👥 ผลงานการขายของทีม
+          </h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={adminSalesData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis type="number" stroke="#9ca3af" fontSize={12} />
+              <YAxis type="category" dataKey="name" stroke="#9ca3af" fontSize={12} width={80} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#fff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                }}
+                formatter={(value: number) => formatCurrency(value)}
+              />
+              <Bar dataKey="revenue" radius={[0, 8, 8, 0]}>
+                {adminSalesData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* NEW SECTION: Customer Demographics */}
+      <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-6">
+          📊 ข้อมูลลูกค้า (Demographics)
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* จังหวัด */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">📍 จังหวัด Top 5</h3>
+            <div className="space-y-3">
+              {provinceData.map((province) => (
+                <div key={province.name} className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: province.color }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 truncate">{province.name}</p>
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                      <div className="h-1.5 rounded-full" 
+                           style={{ 
+                             width: `${(province.customers / provinceData[0].customers) * 100}%`,
+                             backgroundColor: province.color 
+                           }} />
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900 flex-shrink-0">
+                    {formatNumber(province.customers)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* อายุ */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">🎂 ช่วงอายุ</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={ageData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ range, percentage }: any) => `${range}\n${percentage}%`}
+                  outerRadius={70}
+                  fill="#8884d8"
+                  dataKey="customers"
+                >
+                  {ageData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => formatNumber(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* เพศ */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">👤 เพศ</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={genderData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percentage }: any) => `${name}\n${percentage}%`}
+                  outerRadius={70}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {genderData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => formatNumber(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
