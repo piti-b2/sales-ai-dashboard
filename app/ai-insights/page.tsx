@@ -202,11 +202,11 @@ export default function AIInsightsPage() {
           <div className="flex items-center justify-between mb-2">
             <Target className="w-6 h-6 text-purple-600" />
             <span className="text-2xl font-bold text-purple-700">
-              {data.ragPerformance.rate}%
+              {data.ragPerformance?.rate || 0}%
             </span>
           </div>
           <h3 className="text-sm font-medium text-purple-900">RAG Success</h3>
-          <p className="text-xs text-purple-700 mt-1">{data.ragPerformance.success} found</p>
+          <p className="text-xs text-purple-700 mt-1">{data.ragPerformance?.success || 0} found</p>
         </div>
       </div>
 
@@ -438,11 +438,11 @@ export default function AIInsightsPage() {
           </div>
           <div>
             <p className="text-purple-200 text-sm">RAG สำเร็จ</p>
-            <p className="text-2xl font-bold">{data.ragPerformance.success}</p>
+            <p className="text-2xl font-bold">{data.ragPerformance?.success || 0}</p>
           </div>
           <div>
-            <p className="text-purple-200 text-sm">RAG Failed</p>
-            <p className="text-2xl font-bold">{data.ragPerformance.failed}</p>
+            <p className="text-purple-200 text-sm">RAG ล้มเหลว</p>
+            <p className="text-2xl font-bold">{data.ragPerformance?.failed || 0}</p>
           </div>
           <div>
             <p className="text-purple-200 text-sm">Total Questions</p>

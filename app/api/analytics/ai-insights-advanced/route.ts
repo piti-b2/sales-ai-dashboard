@@ -111,6 +111,13 @@ export async function GET(request: NextRequest) {
     // Average confidence
     const avgConfidence = analyzedCount > 0 ? (totalConfidence / analyzedCount).toFixed(1) : '0'
 
+    // RAG Performance (mock for now - can be calculated from actual data later)
+    const ragPerformance = {
+      rate: 85,
+      success: Math.floor(analyzedCount * 0.85),
+      failed: Math.floor(analyzedCount * 0.15)
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -122,6 +129,7 @@ export async function GET(request: NextRequest) {
         topKeywords,
         urgencyDistribution,
         avgConfidence,
+        ragPerformance,
         period: `${days} days`,
         model: 'gpt-4o-mini'
       }
