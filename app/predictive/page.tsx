@@ -52,18 +52,18 @@ export default function PredictivePage() {
       leadsGrowth: 8.3,
       churnRisk: 15,
       topLeads: [
-        { id: 'U001', score: 95, name: 'Customer A', lastContact: '2 hours ago', intent: 'High Purchase Intent' },
-        { id: 'U002', score: 88, name: 'Customer B', lastContact: '5 hours ago', intent: 'Price Inquiry' },
-        { id: 'U003', score: 82, name: 'Customer C', lastContact: '1 day ago', intent: 'Product Comparison' },
-        { id: 'U004', score: 78, name: 'Customer D', lastContact: '2 days ago', intent: 'Information Seeking' },
-        { id: 'U005', score: 75, name: 'Customer E', lastContact: '3 days ago', intent: 'Concern Resolution' },
+        { id: 'U001', score: 95, name: 'ลูกค้า A', lastContact: '2 ชั่วโมงที่แล้ว', intent: 'มีความตั้งใจซื้อสูง' },
+        { id: 'U002', score: 88, name: 'ลูกค้า B', lastContact: '5 ชั่วโมงที่แล้ว', intent: 'สอบถามราคา' },
+        { id: 'U003', score: 82, name: 'ลูกค้า C', lastContact: '1 วันที่แล้ว', intent: 'เปรียบเทียบสินค้า' },
+        { id: 'U004', score: 78, name: 'ลูกค้า D', lastContact: '2 วันที่แล้ว', intent: 'หาข้อมูล' },
+        { id: 'U005', score: 75, name: 'ลูกค้า E', lastContact: '3 วันที่แล้ว', intent: 'แก้ไขข้อกังวล' },
       ],
       revenueForecast: [
-        { week: 'Week 1', actual: 120000, predicted: 125000 },
-        { week: 'Week 2', actual: 135000, predicted: 138000 },
-        { week: 'Week 3', actual: 148000, predicted: 150000 },
-        { week: 'Week 4', actual: 165000, predicted: 168000 },
-        { week: 'Next', actual: null, predicted: 185000 },
+        { week: 'สัปดาห์ 1', actual: 120000, predicted: 125000 },
+        { week: 'สัปดาห์ 2', actual: 135000, predicted: 138000 },
+        { week: 'สัปดาห์ 3', actual: 148000, predicted: 150000 },
+        { week: 'สัปดาห์ 4', actual: 165000, predicted: 168000 },
+        { week: 'สัปดาห์หน้า', actual: null, predicted: 185000 },
       ],
       peakHours: [
         { hour: '9-12', activity: 85 },
@@ -73,10 +73,10 @@ export default function PredictivePage() {
         { hour: '21-24', activity: 45 },
       ],
       recommendations: [
-        { type: 'urgent', title: 'Follow up with 5 hot leads', description: 'These customers showed high purchase intent in the last 24 hours' },
-        { type: 'opportunity', title: 'Peak hours: 12-15', description: 'Schedule important campaigns during this time for maximum engagement' },
-        { type: 'warning', title: '15% churn risk', description: '12 customers haven\'t responded in 7+ days. Send re-engagement campaign' },
-        { type: 'success', title: 'Revenue trending up', description: 'Projected 12.5% growth next week. Maintain current strategy' },
+        { type: 'urgent', title: 'ติดตาม 5 ลูกค้าที่มีโอกาสสูง', description: 'ลูกค้าเหล่านี้แสดงความตั้งใจซื้อสูงใน 24 ชั่วโมงที่ผ่านมา' },
+        { type: 'opportunity', title: 'ช่วงเวลาที่ดีที่สุด: 12-15 น.', description: 'กำหนดแคมเปญสำคัญในช่วงเวลานี้เพื่อการมีส่วนร่วมสูงสุด' },
+        { type: 'warning', title: 'ความเสี่ยงการสูญเสียลูกค้า 15%', description: 'ลูกค้า 12 รายไม่ตอบกลับมากกว่า 7 วัน ควรส่งแคมเปญกระตุ้น' },
+        { type: 'success', title: 'รายได้มีแนวโน้มเพิ่มขึ้น', description: 'คาดการณ์เติบโต 12.5% สัปดาห์หน้า รักษากลยุทธ์ปัจจุบัน' },
       ]
     }
   }
@@ -85,7 +85,7 @@ export default function PredictivePage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-        <span className="ml-2 text-gray-600">Generating predictions...</span>
+        <span className="ml-2 text-gray-600">กำลังสร้างการคาดการณ์...</span>
       </div>
     )
   }
@@ -96,9 +96,9 @@ export default function PredictivePage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
           <Zap className="w-8 h-8 text-purple-600" />
-          Predictive Analytics
+          การวิเคราะห์เชิงคาดการณ์
         </h1>
-        <p className="text-gray-600 mt-1">AI-powered forecasts and recommendations</p>
+        <p className="text-gray-600 mt-1">การคาดการณ์และคำแนะนำโดย AI</p>
       </div>
 
       {/* Prediction Cards */}
@@ -110,9 +110,9 @@ export default function PredictivePage() {
               +{data.revenueGrowth}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-purple-900 mb-1">Next Week Revenue</h3>
+          <h3 className="text-sm font-medium text-purple-900 mb-1">รายได้สัปดาห์หน้า</h3>
           <p className="text-2xl font-bold text-purple-700">{formatCurrency(data.nextWeekRevenue)}</p>
-          <p className="text-xs text-purple-600 mt-1">Predicted with 87% confidence</p>
+          <p className="text-xs text-purple-600 mt-1">คาดการณ์ด้วยความมั่นใจ 87%</p>
         </div>
 
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
@@ -122,9 +122,9 @@ export default function PredictivePage() {
               +{data.leadsGrowth}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-blue-900 mb-1">Expected Hot Leads</h3>
+          <h3 className="text-sm font-medium text-blue-900 mb-1">ลูกค้าเป้าหมายที่คาดว่าจะได้</h3>
           <p className="text-2xl font-bold text-blue-700">{data.nextWeekLeads}</p>
-          <p className="text-xs text-blue-600 mt-1">Based on current trends</p>
+          <p className="text-xs text-blue-600 mt-1">จากแนวโน้มปัจจุบัน</p>
         </div>
 
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
@@ -134,9 +134,9 @@ export default function PredictivePage() {
               Risk
             </span>
           </div>
-          <h3 className="text-sm font-medium text-orange-900 mb-1">Churn Risk</h3>
+          <h3 className="text-sm font-medium text-orange-900 mb-1">ความเสี่ยงสูญเสียลูกค้า</h3>
           <p className="text-2xl font-bold text-orange-700">{data.churnRisk}%</p>
-          <p className="text-xs text-orange-600 mt-1">12 customers at risk</p>
+          <p className="text-xs text-orange-600 mt-1">ลูกค้า 12 รายมีความเสี่ยง</p>
         </div>
 
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
@@ -146,9 +146,9 @@ export default function PredictivePage() {
               Peak
             </span>
           </div>
-          <h3 className="text-sm font-medium text-green-900 mb-1">Best Time to Engage</h3>
-          <p className="text-2xl font-bold text-green-700">12-15</p>
-          <p className="text-xs text-green-600 mt-1">Highest activity period</p>
+          <h3 className="text-sm font-medium text-green-900 mb-1">เวลาที่ดีที่สุดในการติดต่อ</h3>
+          <p className="text-2xl font-bold text-green-700">12-15 น.</p>
+          <p className="text-xs text-green-600 mt-1">ช่วงที่มีกิจกรรมสูงสุด</p>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function PredictivePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Forecast */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Revenue Forecast</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">การคาดการณ์รายได้</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.revenueForecast}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -170,7 +170,7 @@ export default function PredictivePage() {
                 stroke="#3b82f6"
                 strokeWidth={2}
                 dot={{ fill: '#3b82f6' }}
-                name="Actual"
+                name="ยอดจริง"
               />
               <Line
                 type="monotone"
@@ -179,7 +179,7 @@ export default function PredictivePage() {
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={{ fill: '#8b5cf6' }}
-                name="Predicted"
+                name="คาดการณ์"
               />
             </LineChart>
           </ResponsiveContainer>
@@ -187,7 +187,7 @@ export default function PredictivePage() {
 
         {/* Peak Hours */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Activity by Time</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">กิจกรรมตามช่วงเวลา</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.peakHours}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -204,7 +204,7 @@ export default function PredictivePage() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Users className="w-5 h-5 text-blue-600" />
-          Top Leads (Lead Scoring)
+          ลูกค้าเป้าหมายอันดับต้น (คะแนนลูกค้า)
         </h2>
         <div className="space-y-3">
           {data.topLeads.map((lead: any, index: number) => (
@@ -220,11 +220,11 @@ export default function PredictivePage() {
                 <div>
                   <h3 className="font-semibold text-gray-900">{lead.name}</h3>
                   <p className="text-sm text-gray-600">{lead.intent}</p>
-                  <p className="text-xs text-gray-500 mt-1">Last contact: {lead.lastContact}</p>
+                  <p className="text-xs text-gray-500 mt-1">ติดต่อล่าสุด: {lead.lastContact}</p>
                 </div>
               </div>
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                Contact Now
+                ติดต่อเลย
               </button>
             </div>
           ))}
@@ -235,7 +235,7 @@ export default function PredictivePage() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-purple-600" />
-          AI Recommendations
+          คำแนะนำจาก AI
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.recommendations.map((rec: any, index: number) => (

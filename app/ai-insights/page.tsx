@@ -74,7 +74,7 @@ export default function AIInsightsPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Analyzing data...</span>
+        <span className="ml-2 text-gray-600">กำลังวิเคราะห์ข้อมูล...</span>
       </div>
     )
   }
@@ -89,9 +89,9 @@ export default function AIInsightsPage() {
 
   // Prepare sentiment data
   const sentimentData = [
-    { name: 'Positive', value: parseInt(data.sentimentPercentage.positive), color: '#22c55e', icon: Smile },
-    { name: 'Neutral', value: parseInt(data.sentimentPercentage.neutral), color: '#eab308', icon: Meh },
-    { name: 'Negative', value: parseInt(data.sentimentPercentage.negative), color: '#ef4444', icon: Frown },
+    { name: 'เชิงบวก', value: parseInt(data.sentimentPercentage.positive), color: '#22c55e', icon: Smile },
+    { name: 'กลางๆ', value: parseInt(data.sentimentPercentage.neutral), color: '#eab308', icon: Meh },
+    { name: 'เชิงลบ', value: parseInt(data.sentimentPercentage.negative), color: '#ef4444', icon: Frown },
   ]
 
   // Prepare intent data
@@ -107,16 +107,16 @@ export default function AIInsightsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Brain className="w-8 h-8 text-purple-600" />
-            AI Insights
+            การวิเคราะห์ด้วย AI
           </h1>
           <p className="text-gray-600 mt-1">
             {useAI ? (
               <span className="flex items-center gap-1">
                 <Sparkles className="w-4 h-4 text-purple-600" />
-                Powered by OpenAI GPT-4o-mini
+                ขับเคลื่อนโดย OpenAI GPT-4o-mini
               </span>
             ) : (
-              'Rule-based analysis'
+              'การวิเคราะห์แบบ Rule-based'
             )}
           </p>
         </div>
@@ -134,12 +134,12 @@ export default function AIInsightsPage() {
             {useAI ? (
               <>
                 <Sparkles className="w-4 h-4" />
-                AI Analysis
+                การวิเคราะห์ด้วย AI
               </>
             ) : (
               <>
                 <Zap className="w-4 h-4" />
-                Use AI
+                ใช้ AI
               </>
             )}
           </button>
@@ -172,8 +172,8 @@ export default function AIInsightsPage() {
               {data.sentimentPercentage.positive}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-green-900">Positive Sentiment</h3>
-          <p className="text-xs text-green-700 mt-1">{data.sentiments.positive} messages</p>
+          <h3 className="text-sm font-medium text-green-900">ความรู้สึกเชิงบวก</h3>
+          <p className="text-xs text-green-700 mt-1">{data.sentiments.positive} ข้อความ</p>
         </div>
 
         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 border border-yellow-200">
@@ -183,8 +183,8 @@ export default function AIInsightsPage() {
               {data.sentimentPercentage.neutral}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-yellow-900">Neutral Sentiment</h3>
-          <p className="text-xs text-yellow-700 mt-1">{data.sentiments.neutral} messages</p>
+          <h3 className="text-sm font-medium text-yellow-900">ความรู้สึกกลางๆ</h3>
+          <p className="text-xs text-yellow-700 mt-1">{data.sentiments.neutral} ข้อความ</p>
         </div>
 
         <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
@@ -194,8 +194,8 @@ export default function AIInsightsPage() {
               {data.sentimentPercentage.negative}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-red-900">Negative Sentiment</h3>
-          <p className="text-xs text-red-700 mt-1">{data.sentiments.negative} messages</p>
+          <h3 className="text-sm font-medium text-red-900">ความรู้สึกเชิงลบ</h3>
+          <p className="text-xs text-red-700 mt-1">{data.sentiments.negative} ข้อความ</p>
         </div>
 
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
@@ -214,7 +214,7 @@ export default function AIInsightsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sentiment Distribution */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Sentiment Distribution</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">การกระจายความรู้สึก</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -246,7 +246,7 @@ export default function AIInsightsPage() {
 
         {/* Customer Intent */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Customer Intent Classification</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">การจัดหมวดความตั้งใจของลูกค้า</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={intentData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -379,7 +379,7 @@ export default function AIInsightsPage() {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-purple-600" />
-              Top Keywords (AI Extracted)
+              คำสำคัญยอดนิยม (สกัดโดย AI)
             </h2>
             <div className="flex flex-wrap gap-2">
               {data.topKeywords.slice(0, 30).map((item: any, index: number) => (
@@ -396,18 +396,18 @@ export default function AIInsightsPage() {
           {/* Urgency Distribution */}
           {data.urgencyDistribution && (
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Urgency Distribution</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">ระดับความเร่งด่วน</h2>
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <p className="text-sm text-green-600 font-medium">Low</p>
+                  <p className="text-sm text-green-600 font-medium">ต่ำ</p>
                   <p className="text-2xl font-bold text-green-700">{data.urgencyDistribution.low}</p>
                 </div>
                 <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                  <p className="text-sm text-yellow-600 font-medium">Medium</p>
+                  <p className="text-sm text-yellow-600 font-medium">ปานกลาง</p>
                   <p className="text-2xl font-bold text-yellow-700">{data.urgencyDistribution.medium}</p>
                 </div>
                 <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                  <p className="text-sm text-red-600 font-medium">High</p>
+                  <p className="text-sm text-red-600 font-medium">สูง</p>
                   <p className="text-2xl font-bold text-red-700">{data.urgencyDistribution.high}</p>
                 </div>
               </div>
@@ -418,9 +418,9 @@ export default function AIInsightsPage() {
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium text-indigo-900">AI Analysis Confidence</h3>
+                <h3 className="text-sm font-medium text-indigo-900">ความมั่นใจการวิเคราะห์ AI</h3>
                 <p className="text-3xl font-bold text-indigo-700 mt-2">{data.avgConfidence}%</p>
-                <p className="text-xs text-indigo-600 mt-1">Average confidence score</p>
+                <p className="text-xs text-indigo-600 mt-1">คะแนนความมั่นใจเฉลี่ย</p>
               </div>
               <Sparkles className="w-12 h-12 text-indigo-400" />
             </div>
@@ -430,14 +430,14 @@ export default function AIInsightsPage() {
 
       {/* Stats Summary */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
-        <h2 className="text-xl font-bold mb-4">Analysis Summary</h2>
+        <h2 className="text-xl font-bold mb-4">สรุปการวิเคราะห์</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-purple-200 text-sm">Total Analyzed</p>
+            <p className="text-purple-200 text-sm">จำนวนที่วิเคราะห์</p>
             <p className="text-2xl font-bold">{data.totalAnalyzed}</p>
           </div>
           <div>
-            <p className="text-purple-200 text-sm">RAG Success</p>
+            <p className="text-purple-200 text-sm">RAG สำเร็จ</p>
             <p className="text-2xl font-bold">{data.ragPerformance.success}</p>
           </div>
           <div>

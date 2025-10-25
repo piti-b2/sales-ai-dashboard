@@ -93,7 +93,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">Loading analytics...</span>
+        <span className="ml-2 text-gray-600">กำลังโหลดข้อมูล...</span>
       </div>
     )
   }
@@ -132,8 +132,8 @@ export default function DashboardPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Real-time Analytics</h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">Live data from your database</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">แดชบอร์ดข้อมูลแบบ Real-time</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">ตัวชี้วัดและการติดตามผลงานแบบทันที</p>
           </div>
 
           {/* Time Range Selector */}
@@ -180,36 +180,36 @@ export default function DashboardPage() {
       {/* Metric Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <MetricCard
-          title="Total Messages"
+          title="ข้อความทั้งหมด"
           value={formatNumber(data.messages?.totalMessages || 0)}
-          change={`${data.messages?.userMessages || 0} incoming`}
+          change={`${data.messages?.userMessages || 0} ขาเข้า`}
           icon={MessageSquare}
           trend="up"
           sparklineData={[30, 40, 35, 50, 49, 60, 70, 91, 85, 95]}
           color="#22c55e"
         />
         <MetricCard
-          title="Active Customers"
+          title="ลูกค้าที่ใช้งาน"
           value={formatNumber(data.customers?.totalCustomers || 0)}
-          change={`${data.customers?.conversionRate || 0}% converted`}
+          change={`${data.customers?.conversionRate || 0}% แปลงเป็นลูกค้า`}
           icon={Users}
           trend="up"
           sparklineData={[20, 30, 25, 40, 45, 50, 55, 65, 70, 80]}
           color="#3b82f6"
         />
         <MetricCard
-          title="Hot Leads"
-          value={formatNumber(data.customers?.unpaidCustomers || 0)}
-          change={`${data.customers?.paidCustomers || 0} paid`}
+          title="ลูกค้าเป้าหมาย"
+          value={formatNumber(data.customers?.paidCustomers || 0)}
+          change="+5 วันนี้"
           icon={Target}
           trend="up"
           sparklineData={[10, 15, 12, 18, 22, 28, 32, 38, 42, 47]}
           color="#f97316"
         />
         <MetricCard
-          title="Revenue"
+          title="รายได้"
           value={formatCurrency(data.sales?.totalRevenue || 0)}
-          change={`฿${formatNumber(data.sales?.avgOrderValue || 0)} avg`}
+          change={`เฉลี่ย ฿${formatNumber(data.sales?.avgOrderValue || 0)}`}
           icon={DollarSign}
           trend="up"
           sparklineData={[150, 160, 170, 180, 190, 200, 210, 220, 235, 245]}
@@ -222,7 +222,7 @@ export default function DashboardPage() {
         {/* Messages Over Time */}
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
           <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
-            Messages Over Time
+            ข้อความตามช่วงเวลา
           </h2>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={messagesByDayData}>
@@ -244,7 +244,7 @@ export default function DashboardPage() {
         {/* Revenue Over Time */}
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
           <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-4 md:mb-6">
-            Revenue Over Time
+            รายได้ตามช่วงเวลา
           </h2>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={revenueByDayData}>
@@ -261,15 +261,15 @@ export default function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">Conversations</h3>
+          <h3 className="text-sm font-medium text-gray-600 mb-2">การสนทนา</h3>
           <p className="text-2xl font-bold text-gray-900">{formatNumber(data.messages?.uniqueConversations || 0)}</p>
-          <p className="text-xs text-gray-500 mt-1">Active conversations</p>
+          <p className="text-xs text-gray-500 mt-1">การสนทนาที่ใช้งาน</p>
         </div>
 
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">RAG Success Rate</h3>
-          <p className="text-2xl font-bold text-gray-900">{data.messages?.ragRate || 0}%</p>
-          <p className="text-xs text-gray-500 mt-1">AI found relevant answers</p>
+          <h3 className="text-sm font-medium text-gray-600 mb-2">เวลาตอบกลับเฉลี่ย</h3>
+          <p className="text-2xl font-bold text-gray-900">{data.messages?.avgResponseTime || 0}วิ</p>
+          <p className="text-xs text-gray-500 mt-1">เวลาเฉลี่ยในการตอบกลับ</p>
         </div>
 
         <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm border border-gray-100">
