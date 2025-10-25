@@ -118,6 +118,15 @@ export async function GET(request: NextRequest) {
       failed: Math.floor(analyzedCount * 0.15)
     }
 
+    // Product Interest (mock data - can be extracted from keywords/intents)
+    const productInterest = [
+      { product: 'ครีมบำรุงผิว', count: 45 },
+      { product: 'เซรั่มหน้าใส', count: 38 },
+      { product: 'มาส์กหน้า', count: 32 },
+      { product: 'โลชั่นบำรุงผิว', count: 28 },
+      { product: 'ครีมกันแดด', count: 24 },
+    ]
+
     return NextResponse.json({
       success: true,
       data: {
@@ -130,6 +139,7 @@ export async function GET(request: NextRequest) {
         urgencyDistribution,
         avgConfidence,
         ragPerformance,
+        productInterest,
         period: `${days} days`,
         model: 'gpt-4o-mini'
       }

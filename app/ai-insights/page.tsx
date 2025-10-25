@@ -285,10 +285,10 @@ export default function AIInsightsPage() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-blue-600" />
-          Top Product Interest
+          สินค้าที่ได้รับความสนใจ
         </h2>
         <div className="space-y-3">
-          {data.productInterest.length > 0 ? (
+          {data.productInterest && data.productInterest.length > 0 ? (
             data.productInterest.map((item: any, index: number) => (
               <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-3">
@@ -297,11 +297,11 @@ export default function AIInsightsPage() {
                   </span>
                   <span className="text-sm font-medium text-gray-900">{item.product}</span>
                 </div>
-                <span className="text-sm font-bold text-blue-600">{item.count} mentions</span>
+                <span className="text-sm font-bold text-blue-600">{item.count} ครั้ง</span>
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-sm">No product mentions detected</p>
+            <p className="text-gray-500 text-sm">ไม่พบการกล่าวถึงสินค้า</p>
           )}
         </div>
       </div>
