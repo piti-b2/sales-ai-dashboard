@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -19,13 +18,14 @@ import {
   BarChart3
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSidebar } from '@/contexts/SidebarContext'
 
 const menuItems = [
   { name: 'Overview', href: '/', icon: LayoutDashboard },
   { name: 'Real-time Data', href: '/dashboard', icon: BarChart3 },
   { name: 'AI Insights', href: '/ai-insights', icon: Brain },
   { name: 'Predictions', href: '/predictive', icon: Zap },
-  { name: 'Messages', href: '/messages', icon: MessageSquare },
+  { name: 'Chat', href: '/chat', icon: MessageSquare },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Sales', href: '/sales', icon: DollarSign },
 ]
@@ -36,8 +36,7 @@ const bottomMenuItems = [
 ]
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const { collapsed, setCollapsed, mobileOpen, setMobileOpen } = useSidebar()
   const pathname = usePathname()
 
   return (
@@ -85,7 +84,7 @@ export function Sidebar() {
                 height={32}
                 className="rounded-lg"
               />
-              <span className="font-bold text-lg text-black">MAAS AI</span>
+              <span className="font-bold text-lg text-black">MAAS</span>
             </div>
           )}
           <button
