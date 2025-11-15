@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 import {
   LayoutDashboard,
   MessageSquare,
@@ -12,6 +13,7 @@ import {
   Settings,
   HelpCircle,
   ChevronLeft,
+  ChevronDown,
   Menu,
   Brain,
   Zap,
@@ -20,12 +22,33 @@ import {
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/contexts/SidebarContext'
 
-const menuItems = [
+interface SubMenuItem {
+  name: string
+  href: string
+  icon: React.ElementType
+  badge?: string
+}
+
+interface MenuItem {
+  name: string
+  href?: string
+  icon: React.ElementType
+  submenu?: SubMenuItem[]
+}
+
+const menuItems: MenuItem[] = [
   { name: 'Overview', href: '/', icon: LayoutDashboard },
   { name: 'Real-time Data', href: '/dashboard', icon: BarChart3 },
   { name: 'AI Insights', href: '/ai-insights', icon: Brain },
   { name: 'Predictions', href: '/predictive', icon: Zap },
-  { name: 'Chat', href: '/chat', icon: MessageSquare },
+  { 
+    name: 'Chat', 
+    icon: MessageSquare,
+    submenu: [
+      { name: 'LINE', href: '/chat-v2', icon: MessageSquare },
+      { name: 'Facebook', href: '/chat-v3', icon: MessageSquare, badge: 'Soon' },
+    ]
+  },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Sales', href: '/sales', icon: DollarSign },
 ]
@@ -38,6 +61,11 @@ const bottomMenuItems = [
 export function Sidebar() {
   const { collapsed, setCollapsed, mobileOpen, setMobileOpen } = useSidebar()
   const pathname = usePathname()
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
+
+  const toggleSubmenu = (itemName: string) => {
+    setOpenSubmenu(openSubmenu === itemName ? null : itemName)
+  }
 
   return (
     <>
@@ -96,24 +124,87 @@ export function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href
+            const hasSubmenu = item.submenu && item.submenu.length > 0
+            const isSubmenuOpen = openSubmenu === item.name
+            const isActive = item.href ? pathname === item.href : false
+            const isSubmenuActive = item.submenu?.some(sub => pathname === sub.href)
+
             return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors',
-                  isActive
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-100'
+              <div key={item.name}>
+                {/* Main Menu Item */}
+                {hasSubmenu ? (
+                  <button
+                    onClick={() => toggleSubmenu(item.name)}
+                    className={cn(
+                      'w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors',
+                      isSubmenuActive
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      {!collapsed && <span className="font-medium">{item.name}</span>}
+                    </div>
+                    {!collapsed && (
+                      <ChevronDown
+                        className={cn(
+                          'w-4 h-4 transition-transform',
+                          isSubmenuOpen && 'rotate-180'
+                        )}
+                      />
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href!}
+                    className={cn(
+                      'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium">{item.name}</span>}
+                  </Link>
                 )}
-                onClick={() => setMobileOpen(false)}
-              >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                {!collapsed && <span className="font-medium">{item.name}</span>}
-              </Link>
+
+                {/* Submenu */}
+                {hasSubmenu && isSubmenuOpen && !collapsed && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {item.submenu!.map((subItem) => {
+                      const isSubActive = pathname === subItem.href
+                      return (
+                        <Link
+                          key={subItem.name}
+                          href={subItem.href}
+                          className={cn(
+                            'flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors',
+                            isSubActive
+                              ? 'bg-blue-50 text-blue-600'
+                              : 'text-gray-600 hover:bg-gray-50'
+                          )}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                            <span>{subItem.name}</span>
+                          </div>
+                          {subItem.badge && (
+                            <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
+                              {subItem.badge}
+                            </span>
+                          )}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             )
           })}
         </nav>
