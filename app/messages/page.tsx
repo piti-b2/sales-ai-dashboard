@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   MessageSquare,
   TrendingUp,
@@ -12,6 +13,9 @@ import {
   Search,
   Filter,
 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { formatDistanceToNow } from 'date-fns'
+import { th } from 'date-fns/locale'
 import {
   LineChart,
   Line,
@@ -67,60 +71,68 @@ const responseTimeData = [
   { hour: '22:00', seconds: 55 },
 ]
 
-// ข้อความล่าสุด
-const recentMessages = [
-  {
-    id: 1,
-    user: 'สมชาย ใจดี',
-    message: 'สอบถามราคาคอร์สโฟนิกส์หน่อยครับ',
-    time: '2 นาทีที่แล้ว',
-    status: 'replied',
-    avatar: 'SC',
-  },
-  {
-    id: 2,
-    user: 'กมลวรรณ สวยงาม',
-    message: 'ขอบคุณค่ะ ได้รับสินค้าแล้ว',
-    time: '5 นาทีที่แล้ว',
-    status: 'replied',
-    avatar: 'KS',
-  },
-  {
-    id: 3,
-    user: 'ประสิทธิ์ มั่งคั่ง',
-    message: 'ผ่อนชำระได้ไหมครับ',
-    time: '8 นาทีที่แล้ว',
-    status: 'pending',
-    avatar: 'PM',
-  },
-  {
-    id: 4,
-    user: 'วิมลรัตน์ ดีมาก',
-    message: 'เรียนแล้วไม่เข้าใจ ขอคำแนะนำหน่อยค่ะ',
-    time: '12 นาทีที่แล้ว',
-    status: 'replied',
-    avatar: 'VD',
-  },
-  {
-    id: 5,
-    user: 'ธนากร รุ่งเรือง',
-    message: 'ติดตามสถานะพัสดุหน่อยครับ',
-    time: '15 นาทีที่แล้ว',
-    status: 'replied',
-    avatar: 'TR',
-  },
-  {
-    id: 6,
-    user: 'นันทิดา มีสุข',
-    message: 'สนใจคอร์สสำหรับเด็กค่ะ',
-    time: '18 นาทีที่แล้ว',
-    status: 'replied',
-    avatar: 'NM',
-  },
-]
+// Interface สำหรับ Chat Room
+interface ChatRoom {
+  id: string
+  customer_user_id: string
+  customer_name: string
+  customer_avatar: string | null
+  last_message_at: string
+  last_message_content: string | null
+  unread_count: number
+  status: string
+}
+
+// สร้าง Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function MessagesPage() {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
+  const [recentMessages, setRecentMessages] = useState<ChatRoom[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // ดึงข้อมูล chat rooms
+  useEffect(() => {
+    fetchRecentChats()
+  }, [])
+
+  const fetchRecentChats = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('chat_rooms')
+        .select('*')
+        .order('last_message_at', { ascending: false })
+        .limit(10)
+
+      if (error) throw error
+
+      setRecentMessages(data || [])
+    } catch (error) {
+      console.error('Error fetching chat rooms:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ฟังก์ชันสำหรับคลิกเข้าแชท
+  const handleChatClick = (roomId: string) => {
+    router.push(`/chat-v2?room=${roomId}`)
+  }
+
+  // ฟังก์ชันสร้าง avatar initials
+  const getInitials = (name: string) => {
+    if (!name) return '??'
+    const parts = name.split(' ')
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase()
+    }
+    return name.substring(0, 2).toUpperCase()
+  }
 
   return (
     <div className="space-y-6">
@@ -303,44 +315,82 @@ export default function MessagesPage() {
         </div>
 
         <div className="divide-y divide-gray-100">
-          {recentMessages.map((msg) => (
-            <div
-              key={msg.id}
-              className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold">
-                    {msg.avatar}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-sm font-semibold text-gray-900">
-                      {msg.user}
-                    </h3>
-                    <span className="text-xs text-gray-500">{msg.time}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 truncate">
-                    {msg.message}
-                  </p>
-                  <div className="mt-2">
-                    {msg.status === 'replied' ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        ตอบกลับแล้ว
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+              <p className="mt-2">กำลังโหลด...</p>
+            </div>
+          ) : recentMessages.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>ยังไม่มีข้อความ</p>
+            </div>
+          ) : (
+            recentMessages.map((room) => (
+              <div
+                key={room.id}
+                onClick={() => handleChatClick(room.id)}
+                className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-start space-x-4">
+                  {/* Avatar */}
+                  {room.customer_avatar ? (
+                    <img
+                      src={room.customer_avatar}
+                      alt={room.customer_name}
+                      className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-sm font-semibold">
+                        {getInitials(room.customer_name)}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                        <Clock className="w-3 h-3 mr-1" />
-                        รอดำเนินการ
+                    </div>
+                  )}
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        {room.customer_name || room.customer_user_id}
+                      </h3>
+                      <span className="text-xs text-gray-500">
+                        {room.last_message_at
+                          ? formatDistanceToNow(new Date(room.last_message_at), {
+                              addSuffix: true,
+                              locale: th,
+                            })
+                          : '-'}
                       </span>
-                    )}
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {room.last_message_content || 'ไม่มีข้อความ'}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      {/* Status Badge */}
+                      {room.status === 'active' ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          ใช้งาน
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {room.status}
+                        </span>
+                      )}
+                      
+                      {/* Unread Count */}
+                      {room.unread_count > 0 && (
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          {room.unread_count}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
