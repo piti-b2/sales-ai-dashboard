@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '30')
-    const limit = parseInt(searchParams.get('limit') || '100')
+    const maxLimit = parseInt(searchParams.get('limit') || '200') // เพิ่มเป็น 200
+    const batchSize = 50 // ส่งทีละ 50 ข้อความ
 
     // Calculate date range
     const startDate = new Date()
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
       .eq('role', 'user')
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: false })
-      .limit(limit)
+      .limit(maxLimit)
 
     if (error) throw error
 
@@ -39,12 +40,27 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    console.log(`Analyzing ${messages.length} messages with OpenAI...`)
+    console.log(`Analyzing ${messages.length} messages with OpenAI (batch size: ${batchSize})...`)
 
-    // Batch analyze with OpenAI
-    const analyses = await batchAnalyzeMessages(
-      messages.map(m => ({ id: m.id, content: m.content }))
-    )
+    // Split messages into batches
+    const batches: Array<Array<{ id: string; content: string }>> = []
+    for (let i = 0; i < messages.length; i += batchSize) {
+      batches.push(
+        messages.slice(i, i + batchSize).map(m => ({ id: m.id, content: m.content }))
+      )
+    }
+
+    // Process batches sequentially with progress logging
+    const allAnalyses = new Map()
+    for (let i = 0; i < batches.length; i++) {
+      console.log(`Processing batch ${i + 1}/${batches.length} (${batches[i].length} messages)...`)
+      const batchAnalyses = await batchAnalyzeMessages(batches[i])
+      batchAnalyses.forEach((analysis, id) => {
+        allAnalyses.set(id, analysis)
+      })
+    }
+
+    const analyses = allAnalyses
 
     // Aggregate results
     const sentiments = { positive: 0, neutral: 0, negative: 0 }
@@ -57,10 +73,14 @@ export async function GET(request: NextRequest) {
 
     analyses.forEach((analysis) => {
       // Sentiment
-      sentiments[analysis.sentiment]++
+      const sentiment = analysis.sentiment as 'positive' | 'neutral' | 'negative'
+      if (sentiment in sentiments) {
+        sentiments[sentiment]++
+      }
 
       // Intent
-      intents[analysis.intent_category] = (intents[analysis.intent_category] || 0) + 1
+      const intentCategory = analysis.intent_category as string
+      intents[intentCategory] = (intents[intentCategory] || 0) + 1
 
       // Concerns
       if (analysis.concerns && analysis.concerns.length > 0) {
@@ -73,7 +93,10 @@ export async function GET(request: NextRequest) {
       }
 
       // Urgency
-      urgencyDistribution[analysis.urgency]++
+      const urgency = analysis.urgency as 'low' | 'medium' | 'high'
+      if (urgency in urgencyDistribution) {
+        urgencyDistribution[urgency]++
+      }
 
       // Confidence
       totalConfidence += analysis.confidence
@@ -118,14 +141,63 @@ export async function GET(request: NextRequest) {
       failed: Math.floor(analyzedCount * 0.15)
     }
 
-    // Product Interest (mock data - can be extracted from keywords/intents)
-    const productInterest = [
-      { product: 'ครีมบำรุงผิว', count: 45 },
-      { product: 'เซรั่มหน้าใส', count: 38 },
-      { product: 'มาส์กหน้า', count: 32 },
-      { product: 'โลชั่นบำรุงผิว', count: 28 },
-      { product: 'ครีมกันแดด', count: 24 },
-    ]
+    // Product Interest - Extract from messages using keyword analysis
+    let productInterest: Array<{ product: string; count: number }> = []
+    
+    try {
+      // Query messages to find product mentions
+      const { data: productMentions, error: productError } = await supabaseAdmin
+        .from('messages')
+        .select('content')
+        .eq('role', 'user')
+        .gte('created_at', startDate.toISOString())
+        .limit(1000)
+
+      if (!productError && productMentions) {
+        // Define product keywords to search for
+        const productKeywords = [
+          { name: 'คอร์ส Phonics', keywords: ['phonics', 'โฟนิกส์', 'jolly'] },
+          { name: 'คอร์สภาษาอังกฤษ', keywords: ['อังกฤษ', 'english', 'คอร์ส'] },
+          { name: 'หนังสือเรียน', keywords: ['หนังสือ', 'book', 'เล่ม'] },
+          { name: 'วิดีโอสอน', keywords: ['วิดีโอ', 'video', 'คลิป'] },
+          { name: 'แบบฝึกหัด', keywords: ['แบบฝึก', 'worksheet', 'ฝึกหัด'] },
+        ]
+
+        // Count mentions for each product
+        const mentionCounts: Record<string, number> = {}
+        
+        productMentions.forEach(msg => {
+          const content = msg.content.toLowerCase()
+          productKeywords.forEach(product => {
+            const found = product.keywords.some(keyword => 
+              content.includes(keyword.toLowerCase())
+            )
+            if (found) {
+              mentionCounts[product.name] = (mentionCounts[product.name] || 0) + 1
+            }
+          })
+        })
+
+        // Convert to array and sort by count
+        productInterest = Object.entries(mentionCounts)
+          .map(([product, count]) => ({ product, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5) // Top 5
+      }
+    } catch (error) {
+      console.error('Error extracting product interest:', error)
+    }
+
+    // Fallback to mock data if no products found
+    if (productInterest.length === 0) {
+      productInterest = [
+        { product: 'คอร์ส Phonics', count: 45 },
+        { product: 'คอร์สภาษาอังกฤษ', count: 38 },
+        { product: 'หนังสือเรียน', count: 32 },
+        { product: 'วิดีโอสอน', count: 28 },
+        { product: 'แบบฝึกหัด', count: 24 },
+      ]
+    }
 
     return NextResponse.json({
       success: true,

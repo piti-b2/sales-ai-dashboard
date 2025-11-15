@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import {
@@ -39,7 +39,7 @@ interface ChatRoomWithDetails extends ChatRoom {
   unread_count?: number
 }
 
-export default function ChatPageV2() {
+function ChatPageV2Content() {
   const searchParams = useSearchParams()
   const roomIdFromUrl = searchParams.get('room')
   
@@ -463,5 +463,20 @@ export default function ChatPageV2() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ChatPageV2() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลด...</p>
+        </div>
+      </div>
+    }>
+      <ChatPageV2Content />
+    </Suspense>
   )
 }
