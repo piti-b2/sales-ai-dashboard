@@ -45,6 +45,7 @@ const menuItems: MenuItem[] = [
     name: 'Chat', 
     icon: MessageSquare,
     submenu: [
+      { name: 'Messages', href: '/messages', icon: BarChart3 },
       { name: 'LINE', href: '/chat-v2', icon: MessageSquare },
       { name: 'Facebook', href: '/chat-v3', icon: MessageSquare, badge: 'Soon' },
     ]
