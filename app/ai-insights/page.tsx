@@ -33,6 +33,7 @@ export default function AIInsightsPage() {
   const [data, setData] = useState<any>(null)
   const [faqData, setFaqData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMessage, setLoadingMessage] = useState('กำลังโหลดข้อมูล...')
   const [days, setDays] = useState(30)
   const [useAI, setUseAI] = useState(false) // Toggle between Rule-based and AI
 
@@ -42,9 +43,11 @@ export default function AIInsightsPage() {
 
   const fetchInsights = async () => {
     setLoading(true)
+    setLoadingMessage(useAI ? 'กำลังวิเคราะห์ด้วย AI... (อาจใช้เวลา 20-30 วินาที)' : 'กำลังโหลดข้อมูล...')
+    
     try {
       const endpoint = useAI 
-        ? `/api/analytics/ai-insights-advanced?days=${days}&limit=100`
+        ? `/api/analytics/ai-insights-advanced?days=${days}&limit=200`
         : `/api/analytics/ai-insights?days=${days}`
       
       const [insightsRes, faqRes] = await Promise.all([
@@ -72,9 +75,26 @@ export default function AIInsightsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-gray-600">กำลังวิเคราะห์ข้อมูล...</span>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="relative">
+          <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+          {useAI && (
+            <Sparkles className="w-6 h-6 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
+          )}
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-medium text-gray-900">{loadingMessage}</p>
+          {useAI && (
+            <p className="text-sm text-gray-500 mt-2">
+              กำลังวิเคราะห์ข้อความด้วย OpenAI GPT-4o-mini
+            </p>
+          )}
+        </div>
+        {useAI && (
+          <div className="w-64 bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div className="bg-purple-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }} />
+          </div>
+        )}
       </div>
     )
   }
@@ -263,20 +283,25 @@ export default function AIInsightsPage() {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <AlertCircle className="w-5 h-5 text-orange-600" />
-          Top Customer Concerns
+          ปัญหาที่พบบ่อย
         </h2>
         <div className="space-y-3">
-          {data.topConcerns.length > 0 ? (
-            data.topConcerns.map((concern: string, index: number) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                <span className="flex-shrink-0 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                  {index + 1}
-                </span>
-                <p className="text-sm text-gray-700">{concern}</p>
+          {data.topConcerns && data.topConcerns.length > 0 ? (
+            data.topConcerns.map((item: any, index: number) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm text-gray-700">{item.concern || item}</p>
+                </div>
+                {item.count && (
+                  <span className="text-sm font-bold text-orange-600">{item.count} ครั้ง</span>
+                )}
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-sm">No concerns detected in this period</p>
+            <p className="text-gray-500 text-sm">ไม่พบปัญหาในช่วงเวลานี้</p>
           )}
         </div>
       </div>

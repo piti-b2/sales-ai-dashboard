@@ -20,7 +20,9 @@ import {
   Brain,
   RefreshCw,
   Download,
+  Clock,
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
@@ -34,6 +36,10 @@ export default function SettingsPage() {
     { id: 'integrations', name: 'การเชื่อมต่อ', icon: Zap },
     { id: 'appearance', name: 'รูปแบบ', icon: Palette },
     { id: 'data', name: 'ข้อมูล', icon: Database },
+  ]
+
+  const externalLinks = [
+    { href: '/settings/operating-hours', name: 'เวลาทำงาน', icon: Clock },
   ]
 
   return (
@@ -61,6 +67,24 @@ export default function SettingsPage() {
                   <Icon className="w-5 h-5" />
                   <span className="font-medium">{tab.name}</span>
                 </button>
+              )
+            })}
+            
+            {/* Divider */}
+            <div className="my-2 border-t border-gray-200"></div>
+            
+            {/* External Links */}
+            {externalLinks.map((link) => {
+              const Icon = link.icon
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{link.name}</span>
+                </Link>
               )
             })}
           </div>

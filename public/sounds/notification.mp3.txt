@@ -1,0 +1,10 @@
+# Notification Sound
+
+ไฟล์นี้เป็น placeholder สำหรับเสียงแจ้งเตือน
+
+คุณสามารถ:
+1. ดาวน์โหลดเสียงแจ้งเตือนฟรีจาก https://mixkit.co/free-sound-effects/notification/
+2. เปลี่ยนชื่อเป็น `notification.mp3`
+3. วางไว้ที่ `public/sounds/notification.mp3`
+
+หรือใช้เสียงแจ้งเตือนของ LINE โดยตรง

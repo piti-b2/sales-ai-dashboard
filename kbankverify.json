@@ -1,0 +1,349 @@
+{
+  "name": "KBank Slip Verification Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Parse OpenAI Vision Response\nconst response = $json;\nconst content = response.choices[0].message.content;\n\nconsole.log('=== OpenAI Response ===');\nconsole.log(content);\n\n// Parse JSON\nlet slipData;\ntry {\n  slipData = JSON.parse(content);\n} catch (e) {\n  const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    slipData = JSON.parse(jsonMatch[0]);\n  } else {\n    slipData = { isSlip: false, error: 'Cannot parse' };\n  }\n}\n\n// แปลงชื่อธนาคารจากไทยเป็นอังกฤษ\nconst bankMapping = {\n  'กสิกรไทย': 'KBANK',\n  'กสิกร': 'KBANK',\n  'KBank': 'KBANK',\n  'KBANK': 'KBANK',\n  'ไทยพาณิชย์': 'SCB',\n  'SCB': 'SCB',\n  'กรุงเทพ': 'BBL',\n  'BBL': 'BBL',\n  'กรุงไทย': 'KTB',\n  'KTB': 'KTB',\n  'กรุงศรีอยุธยา': 'BAY',\n  'BAY': 'BAY',\n  'ทหารไทยธนชาต': 'TTB',\n  'ทหารไทย': 'TTB',\n  'TTB': 'TTB',\n  'ธนชาต': 'TBANK',\n  'TBANK': 'TBANK',\n  'ออมสิน': 'GSB',\n  'GSB': 'GSB',\n  'อาคารสงเคราะห์': 'GHBANK',\n  'GHBANK': 'GHBANK',\n  'ธกส': 'BAAC',\n  'BAAC': 'BAAC',\n  'เกียรตินาคิน': 'KKP',\n  'KKP': 'KKP',\n  'ซีไอเอ็มบี': 'CIMB',\n  'CIMB': 'CIMB',\n  'ยูโอบี': 'UOB',\n  'UOB': 'UOB',\n  'ทิสโก้': 'TISCO',\n  'TISCO': 'TISCO',\n  'แลนด์แอนด์เฮ้าส์': 'LHBANK',\n  'LHBANK': 'LHBANK',\n  'ไอซีบีซี': 'ICBC',\n  'ICBC': 'ICBC'\n};\n\n// Normalize bank names\nif (slipData.bank) {\n  const normalizedBank = bankMapping[slipData.bank] || slipData.bank;\n  console.log(`🏦 Bank normalized: ${slipData.bank} → ${normalizedBank}`);\n  slipData.bank = normalizedBank;\n}\n\nif (slipData.bankDestination) {\n  const normalizedBankDest = bankMapping[slipData.bankDestination] || slipData.bankDestination;\n  console.log(`🏦 Bank destination normalized: ${slipData.bankDestination} → ${normalizedBankDest}`);\n  slipData.bankDestination = normalizedBankDest;\n}\n\nreturn {\n  slipData,\n  userId: $('เตรียมข้อมูลรูปภาพ').item.json.userId,\n  replyToken: $('เตรียมข้อมูลรูปภาพ').item.json.replyToken,\n  messageId: $('เตรียมข้อมูลรูปภาพ').item.json.messageId\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 1968],
+      "id": "parse-openai",
+      "name": "Parse OpenAI Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.slipData.isSlip }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.slipData.reference }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.slipData.bank }}",
+              "rightValue": "KBANK",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "combineOperation": "all"
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [860, 1968],
+      "id": "check-kbank",
+      "name": "ต้องเรียก KBank?"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "api_tokens",
+          "mode": "list"
+        },
+        "filterType": "manual",
+        "matchType": "matchFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "provider",
+              "condition": "equals",
+              "keyValue": "kbank"
+            },
+            {
+              "keyName": "expires_at",
+              "condition": "afterDate",
+              "keyValue": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {
+          "queryName": "single"
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1080, 1868],
+      "id": "check-token-db",
+      "name": "Check Token in Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ $credentials.supabaseApi.id }}",
+          "name": "{{ $credentials.supabaseApi.name }}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if token exists and valid\nconst tokenData = $input.all();\n\nif (tokenData.length > 0 && tokenData[0].json.access_token) {\n  console.log('✅ Using token from Supabase');\n  return {\n    access_token: tokenData[0].json.access_token,\n    fromCache: true,\n    tokenId: tokenData[0].json.id,\n    ...($('Parse OpenAI Result').item.json)\n  };\n}\n\nconsole.log('🔑 Need new token');\nreturn {\n  needNewToken: true,\n  fromCache: false,\n  ...($('Parse OpenAI Result').item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 1868],
+      "id": "check-token-result",
+      "name": "Check Token Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needNewToken }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1520, 1868],
+      "id": "need-new-token",
+      "name": "Need New Token?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare OAuth Request with Base64 encoding\nconst consumerId = $vars.KBANK_CONSUMER_ID;\nconst consumerSecret = $vars.KBANK_CONSUMER_SECRET;\n\n// Create Basic Auth token\nconst credentials = `${consumerId}:${consumerSecret}`;\nconst base64Credentials = Buffer.from(credentials).toString('base64');\n\nconsole.log('🔑 Requesting OAuth token...');\n\nreturn {\n  authHeader: `Basic ${base64Credentials}`,\n  ...($input.item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1740, 1768],
+      "id": "prepare-auth",
+      "name": "Prepare OAuth Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openapi-sandbox.kasikornbank.com/v2/oauth/token",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.authHeader }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            },
+            {
+              "name": "x-test-mode",
+              "value": "true"
+            },
+            {
+              "name": "env-id",
+              "value": "OAUTH2"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1960, 1768],
+      "id": "get-token",
+      "name": "Get KBank OAuth Token"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse OAuth response (KBank returns array)\nconst response = $json;\n\n// Handle array response\nconst tokenData = Array.isArray(response) ? response[0] : response;\n\nif (!tokenData || !tokenData.access_token) {\n  throw new Error('Invalid OAuth response: ' + JSON.stringify(response));\n}\n\n// Parse expires_in (string to number)\nconst expiresIn = parseInt(tokenData.expires_in) || 1799;\nconst expiresAt = new Date(Date.now() + (expiresIn * 1000));\n\nconsole.log('💾 Saving token to Supabase...');\nconsole.log('Token:', tokenData.access_token.substring(0, 10) + '...');\nconsole.log('Expires at:', expiresAt.toISOString());\n\nreturn {\n  provider: 'kbank',\n  access_token: tokenData.access_token,\n  expires_at: expiresAt.toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2180, 1768],
+      "id": "parse-oauth-response",
+      "name": "Parse OAuth Response"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": {
+          "__rl": true,
+          "value": "api_tokens",
+          "mode": "list"
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "provider",
+              "fieldValue": "={{ $json.provider }}"
+            },
+            {
+              "fieldId": "access_token",
+              "fieldValue": "={{ $json.access_token }}"
+            },
+            {
+              "fieldId": "expires_at",
+              "fieldValue": "={{ $json.expires_at }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2400, 1768],
+      "id": "save-token-db",
+      "name": "Save Token to Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "{{ $credentials.supabaseApi.id }}",
+          "name": "{{ $credentials.supabaseApi.name }}"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Return token for next step\nconst savedToken = $('Parse OAuth Response').item.json;\n\nconsole.log('✅ Token saved to Supabase successfully');\n\nreturn {\n  access_token: savedToken.access_token,\n  fromCache: false,\n  ...($('Parse OpenAI Result').item.json)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2620, 1768],
+      "id": "prepare-token-output",
+      "name": "Prepare Token Output"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openapi-sandbox.kasikornbank.com/v2/slipverify",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-test-mode",
+              "value": "true"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"transRef\": \"{{ $('Parse OpenAI Result').item.json.slipData.reference }}\",\n  \"sendingBank\": \"004\",\n  \"receivingBank\": \"{{ $('Parse OpenAI Result').item.json.slipData.bankDestination === 'กสิกรไทย' ? '004' : '999' }}\",\n  \"amount\": \"{{ $('Parse OpenAI Result').item.json.slipData.amount }}\",\n  \"transDate\": \"{{ $('Parse OpenAI Result').item.json.slipData.datetime.split(' ')[0].replace(/-/g, '') }}\",\n  \"transTime\": \"{{ $('Parse OpenAI Result').item.json.slipData.datetime.split(' ')[1].replace(/:/g, '') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2620, 1868],
+      "id": "verify-slip",
+      "name": "Verify Slip with KBank"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2840, 1868],
+      "id": "merge-token-paths",
+      "name": "Merge Token Paths"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge OpenAI + KBank Results\nconst openaiData = $('Parse OpenAI Result').item.json.slipData;\nconst kbankResult = $json;\n\nlet finalStatus, finalConfidence, finalMessage, kbankVerified = false;\n\nif (kbankResult.data && kbankResult.data.verified === true) {\n  kbankVerified = true;\n  finalStatus = 'verified';\n  finalConfidence = 'high';\n  finalMessage = '✅ ตรวจสอบกับธนาคารกสิกรไทยแล้ว\\n\\nสลิปนี้เป็นของแท้และข้อมูลถูกต้อง';\n} else if (kbankResult.error || kbankResult.data?.verified === false) {\n  finalStatus = 'kbank_failed';\n  finalConfidence = 'low';\n  finalMessage = '❌ ตรวจสอบกับธนาคารไม่ผ่าน\\n\\nสลิปนี้อาจเป็นของปลอมหรือข้อมูลไม่ถูกต้อง';\n} else {\n  // Fallback to OpenAI\n  finalStatus = openaiData.confidence === 'high' ? 'openai_verified' : 'pending';\n  finalConfidence = openaiData.confidence;\n  finalMessage = '⚠️ ไม่สามารถตรวจสอบกับธนาคารได้\\n\\nกรุณารอแอดมินตรวจสอบภายใน 24 ชั่วโมง';\n}\n\nreturn {\n  userId: $('Parse OpenAI Result').item.json.userId,\n  replyToken: $('Parse OpenAI Result').item.json.replyToken,\n  messageId: $('Parse OpenAI Result').item.json.messageId,\n  slipData: openaiData,\n  kbankVerified,\n  kbankResult: kbankResult.data || null,\n  validationStatus: finalStatus,\n  confidence: finalConfidence,\n  replyMessage: finalMessage + '\\n\\n' +\n    `💰 จำนวนเงิน: ${openaiData.amount || 'ไม่ระบุ'} บาท\\n` +\n    `📅 วันที่-เวลา: ${openaiData.datetime || 'ไม่ระบุ'}\\n` +\n    `🏦 ธนาคาร: ${openaiData.bank || 'ไม่ระบุ'}\\n` +\n    `🔢 เลขอ้างอิง: ${openaiData.reference || 'ไม่ระบุ'}`,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3060, 1868],
+      "id": "merge-results",
+      "name": "Merge Results (KBank Path)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// OpenAI Only Path (No KBank)\nconst slipData = $json.slipData;\n\nlet validationStatus, confidence, replyMessage;\n\nif (!slipData.isSlip) {\n  validationStatus = 'not_slip';\n  confidence = 'low';\n  replyMessage = '❌ ไม่ใช่สลิปโอนเงิน\\n\\nกรุณาส่งสลิปโอนเงินที่ถูกต้อง';\n} else if (slipData.confidence === 'high' && slipData.verified) {\n  validationStatus = 'openai_verified';\n  confidence = 'high';\n  replyMessage = '✅ ตรวจสอบสลิปเบื้องต้นแล้ว\\n\\nข้อมูลดูถูกต้อง กรุณารอแอดมินยืนยัน';\n} else {\n  validationStatus = 'pending';\n  confidence = slipData.confidence || 'medium';\n  replyMessage = '⚠️ ได้รับสลิปแล้ว\\n\\nกรุณารอแอดมินตรวจสอบภายใน 24 ชั่วโมง';\n}\n\nreturn {\n  userId: $json.userId,\n  replyToken: $json.replyToken,\n  messageId: $json.messageId,\n  slipData,\n  kbankVerified: false,\n  kbankResult: null,\n  validationStatus,\n  confidence,\n  replyMessage: replyMessage + (slipData.isSlip ? '\\n\\n' +\n    `💰 จำนวนเงิน: ${slipData.amount || 'ไม่ระบุ'} บาท\\n` +\n    `📅 วันที่-เวลา: ${slipData.datetime || 'ไม่ระบุ'}\\n` +\n    `🏦 ธนาคาร: ${slipData.bank || 'ไม่ระบุ'}\\n` +\n    `🔢 เลขอ้างอิง: ${slipData.reference || 'ไม่ระบุ'}` : ''),\n  timestamp: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1960, 2068],
+      "id": "openai-only",
+      "name": "OpenAI Only Result"
+    }
+  ],
+  "connections": {
+    "Parse OpenAI Result": {
+      "main": [[{ "node": "ต้องเรียก KBank?", "type": "main", "index": 0 }]]
+    },
+    "ต้องเรียก KBank?": {
+      "main": [
+        [{ "node": "Check Token in Supabase", "type": "main", "index": 0 }],
+        [{ "node": "OpenAI Only Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check Token in Supabase": {
+      "main": [[{ "node": "Check Token Result", "type": "main", "index": 0 }]]
+    },
+    "Check Token Result": {
+      "main": [[{ "node": "Need New Token?", "type": "main", "index": 0 }]]
+    },
+    "Need New Token?": {
+      "main": [
+        [{ "node": "Prepare OAuth Request", "type": "main", "index": 0 }],
+        [{ "node": "Merge Token Paths", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare OAuth Request": {
+      "main": [[{ "node": "Get KBank OAuth Token", "type": "main", "index": 0 }]]
+    },
+    "Get KBank OAuth Token": {
+      "main": [[{ "node": "Parse OAuth Response", "type": "main", "index": 0 }]]
+    },
+    "Parse OAuth Response": {
+      "main": [[{ "node": "Save Token to Supabase", "type": "main", "index": 0 }]]
+    },
+    "Save Token to Supabase": {
+      "main": [[{ "node": "Prepare Token Output", "type": "main", "index": 0 }]]
+    },
+    "Prepare Token Output": {
+      "main": [[{ "node": "Merge Token Paths", "type": "main", "index": 1 }]]
+    },
+    "Merge Token Paths": {
+      "main": [[{ "node": "Verify Slip with KBank", "type": "main", "index": 0 }]]
+    },
+    "Verify Slip with KBank": {
+      "main": [[{ "node": "Merge Results (KBank Path)", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {}
+}

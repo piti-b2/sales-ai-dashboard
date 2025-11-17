@@ -1,4 +1,4 @@
-# MAAS AI System - Database Schema
+# MAAS - Database Schema
 
 ## 📊 ภาพรวมฐานข้อมูล
 

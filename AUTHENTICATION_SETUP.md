@@ -1,4 +1,4 @@
-# 🔐 MAAS AI System - Authentication Setup Guide
+# 🔐 MAAS - Authentication Setup Guide
 
 ## ✅ สิ่งที่ทำเสร็จแล้ว
 

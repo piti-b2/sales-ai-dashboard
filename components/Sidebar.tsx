@@ -17,7 +17,9 @@ import {
   Menu,
   Brain,
   Zap,
-  BarChart3
+  BarChart3,
+  Sparkles,
+  Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/contexts/SidebarContext'
@@ -55,7 +57,15 @@ const menuItems: MenuItem[] = [
 ]
 
 const bottomMenuItems = [
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { 
+    name: 'Settings', 
+    icon: Settings,
+    submenu: [
+      { name: 'ทั่วไป', href: '/settings', icon: Settings },
+      { name: 'AI Config', href: '/settings/ai-config', icon: Sparkles },
+      { name: 'เวลาทำการ', href: '/settings/operating-hours', icon: Clock },
+    ]
+  },
   { name: 'Help', href: '/help', icon: HelpCircle },
 ]
 
@@ -212,17 +222,81 @@ export function Sidebar() {
 
         {/* Bottom Menu */}
         <div className="p-4 space-y-1 border-t border-gray-200">
-          {bottomMenuItems.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="font-medium">{item.name}</span>}
-            </Link>
-          ))}
+          {bottomMenuItems.map((item) => {
+            const hasSubmenu = item.submenu && item.submenu.length > 0
+            const isSubmenuOpen = openSubmenu === item.name
+            const isActive = item.href ? pathname === item.href : false
+            const isSubmenuActive = item.submenu?.some(sub => pathname === sub.href)
+
+            return (
+              <div key={item.name}>
+                {/* Main Menu Item */}
+                {hasSubmenu ? (
+                  <button
+                    onClick={() => toggleSubmenu(item.name)}
+                    className={cn(
+                      'w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors',
+                      isSubmenuActive
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      {!collapsed && <span className="font-medium">{item.name}</span>}
+                    </div>
+                    {!collapsed && (
+                      <ChevronDown
+                        className={cn(
+                          'w-4 h-4 transition-transform',
+                          isSubmenuOpen && 'rotate-180'
+                        )}
+                      />
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href!}
+                    className={cn(
+                      'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors',
+                      isActive
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    )}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium">{item.name}</span>}
+                  </Link>
+                )}
+
+                {/* Submenu */}
+                {hasSubmenu && isSubmenuOpen && !collapsed && (
+                  <div className="ml-4 mt-1 space-y-1">
+                    {item.submenu!.map((subItem) => {
+                      const isSubActive = pathname === subItem.href
+                      return (
+                        <Link
+                          key={subItem.name}
+                          href={subItem.href}
+                          className={cn(
+                            'flex items-center space-x-2 px-3 py-2 rounded-lg text-sm transition-colors',
+                            isSubActive
+                              ? 'bg-blue-50 text-blue-600'
+                              : 'text-gray-600 hover:bg-gray-50'
+                          )}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                          <span>{subItem.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </aside>
     </>

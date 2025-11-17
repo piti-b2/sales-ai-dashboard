@@ -10,6 +10,15 @@ export function Header() {
   const router = useRouter()
   const [user, setUser] = useState<UserType | null>(null)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
+  // ใช้ usePathname แทน window.location เพื่อหลีกเลี่ยง hydration mismatch
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+  const isChatPage = mounted && (pathname === '/chat-v2' || pathname === '/chat')
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     loadUser()
@@ -37,7 +46,7 @@ export function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
+    <header className={`bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 flex-shrink-0 ${!isChatPage ? 'sticky top-0 z-30' : ''}`}>
       <div className="flex items-center flex-1 max-w-2xl">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />

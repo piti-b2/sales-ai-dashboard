@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test LINE Media Proxy</title>
+</head>
+<body>
+  <h1>Test LINE Media Proxy</h1>
+  
+  <h2>Test 1: Direct LINE URL (จะ fail เพราะไม่มี Authorization)</h2>
+  <img 
+    src="https://api-data.line.me/v2/bot/message/585170255900049600/content" 
+    alt="Direct LINE"
+    style="max-width: 300px; border: 2px solid red;"
+    onerror="console.error('❌ Direct LINE failed (expected)')"
+    onload="console.log('✅ Direct LINE loaded (unexpected!)')"
+  />
+  
+  <h2>Test 2: Through Proxy API</h2>
+  <img 
+    src="/api/line-media?url=https%3A%2F%2Fapi-data.line.me%2Fv2%2Fbot%2Fmessage%2F585170255900049600%2Fcontent" 
+    alt="Proxy API"
+    style="max-width: 300px; border: 2px solid green;"
+    onerror="console.error('❌ Proxy API failed')"
+    onload="console.log('✅ Proxy API loaded')"
+  />
+  
+  <h2>Test 3: Supabase Storage (ควรแสดงได้)</h2>
+  <img 
+    src="https://zuhgdvpgcipdkhzxxqtm.supabase.co/storage/v1/object/public/chat-images/2025/10/28/payment_slip-b2fb3e09-585169535368692258.jpg" 
+    alt="Supabase"
+    style="max-width: 300px; border: 2px solid blue;"
+    onerror="console.error('❌ Supabase failed')"
+    onload="console.log('✅ Supabase loaded')"
+  />
+
+  <script>
+    console.log('🧪 Testing LINE Media Proxy...')
+    
+    // Test fetch API
+    fetch('/api/line-media?url=' + encodeURIComponent('https://api-data.line.me/v2/bot/message/585170255900049600/content'))
+      .then(res => {
+        console.log('📊 Proxy API Response:', {
+          status: res.status,
+          contentType: res.headers.get('content-type'),
+          ok: res.ok
+        })
+        return res.blob()
+      })
+      .then(blob => {
+        console.log('✅ Blob received:', blob.size, 'bytes, type:', blob.type)
+      })
+      .catch(err => {
+        console.error('❌ Fetch error:', err)
+      })
+  </script>
+</body>
+</html>

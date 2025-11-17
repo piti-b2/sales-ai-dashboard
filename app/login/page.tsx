@@ -79,10 +79,10 @@ export default function LoginPage() {
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              MAAS AI System
+              MAAS
             </h1>
             <p className="text-gray-600">
-              Marketing Automation AI Assistant System
+              Markettis Admin AI System
             </p>
           </div>
 
@@ -197,7 +197,7 @@ export default function LoginPage() {
 
           {/* Footer */}
           <p className="text-center text-xs text-gray-500 mt-8">
-            © 2025 MAAS AI System. All rights reserved.
+            © 2025 Markettis Admin AI System. (MAAS) All rights reserved.
           </p>
         </div>
       </div>
@@ -217,7 +217,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 max-w-lg text-white" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.5)' }}>
           <h2 className="text-5xl font-bold mb-6">
-            ยินดีต้อนรับสู่ MAAS AI
+            ยินดีต้อนรับสู่ระบบ Markettis Admin AI System (MAAS)
           </h2>
           <p className="text-2xl mb-8">
             ระบบ AI ที่ช่วยให้การทำงานของคุณง่ายขึ้น อัตโนมัติมากขึ้น และมีประสิทธิภาพสูงสุด

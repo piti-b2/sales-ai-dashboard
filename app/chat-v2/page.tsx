@@ -407,12 +407,12 @@ function ChatPageV2Content() {
                   {isAIEnabled ? (
                     <>
                       <Bot className="w-4 h-4 inline mr-1" />
-                      AI เปิด
+                      AI Assistant เปิด
                     </>
                   ) : (
                     <>
                       <BotOff className="w-4 h-4 inline mr-1" />
-                      AI ปิด
+                      AI Assistant ปิด
                     </>
                   )}
                 </button>
