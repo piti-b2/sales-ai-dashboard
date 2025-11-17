@@ -96,14 +96,18 @@ export function ChatRoomContent({
 
     const handleScroll = () => {
       const scrollTop = container.scrollTop
-      const threshold = 100 // pixels from top
+      const threshold = 50 // pixels from top
       
+      // แสดงปุ่มเฉพาะเมื่อเลื่อนถึงบนสุด (scrollTop < threshold)
       if (scrollTop < threshold && hasMore && !loadingMore) {
         setShowLoadMoreHint(true)
       } else {
         setShowLoadMoreHint(false)
       }
     }
+
+    // เรียกครั้งแรกเพื่อตรวจสอบตำแหน่งเริ่มต้น
+    handleScroll()
 
     container.addEventListener('scroll', handleScroll)
     return () => container.removeEventListener('scroll', handleScroll)
@@ -134,20 +138,19 @@ export function ChatRoomContent({
           </div>
         ) : (
           <>
-            {/* Load More Button */}
-            {hasMore && (
+            {/* Load More Button - แสดงเฉพาะเมื่อเลื่อนถึงบนสุด */}
+            {hasMore && showLoadMoreHint && (
               <div className="flex justify-center mb-6 sticky top-0 z-10 pt-4">
                 <button
                   onClick={loadMoreMessages}
                   disabled={loadingMore}
-                  className={`
+                  className="
                     px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full 
                     shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 
                     disabled:opacity-50 disabled:cursor-not-allowed 
-                    transition-all transform hover:scale-105 
+                    transition-all transform hover:scale-105 animate-bounce
                     flex items-center space-x-2 font-medium
-                    ${showLoadMoreHint ? 'animate-bounce' : ''}
-                  `}
+                  "
                 >
                   {loadingMore ? (
                     <>
