@@ -39,6 +39,7 @@ export default function SettingsPage() {
   ]
 
   const externalLinks = [
+    { href: '/settings/ai-config', name: 'AI Config', icon: Brain },
     { href: '/settings/operating-hours', name: 'เวลาทำงาน', icon: Clock },
   ]
 
