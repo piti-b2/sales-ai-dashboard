@@ -163,7 +163,7 @@ export default function AIConfigPage() {
           <div className="flex gap-3">
             <button
               onClick={fetchConfig}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               รีเซ็ต
@@ -275,7 +275,7 @@ export default function AIConfigPage() {
               <select
                 value={config.model}
                 onChange={(e) => setConfig({ ...config, model: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="gpt-4o-mini">GPT-4o Mini (ประหยัด)</option>
                 <option value="gpt-4o">GPT-4o (แม่นยำ)</option>
