@@ -236,7 +236,7 @@ export default function AIConfigPage() {
                 type="text"
                 value={config.config_name}
                 onChange={(e) => setConfig({ ...config, config_name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
@@ -247,7 +247,7 @@ export default function AIConfigPage() {
                 type="text"
                 value={config.business_type}
                 onChange={(e) => setConfig({ ...config, business_type: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div className="md:col-span-2">
@@ -258,7 +258,7 @@ export default function AIConfigPage() {
                 value={config.description || ''}
                 onChange={(e) => setConfig({ ...config, description: e.target.value })}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -306,7 +306,7 @@ export default function AIConfigPage() {
                 type="number"
                 value={config.max_tokens}
                 onChange={(e) => setConfig({ ...config, max_tokens: parseInt(e.target.value) })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
@@ -317,7 +317,7 @@ export default function AIConfigPage() {
                 type="number"
                 value={config.context_message_limit}
                 onChange={(e) => setConfig({ ...config, context_message_limit: parseInt(e.target.value) })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">AI จะอ่านข้อความล่าสุดกี่ข้อความ</p>
             </div>
@@ -331,7 +331,7 @@ export default function AIConfigPage() {
             value={config.system_prompt}
             onChange={(e) => setConfig({ ...config, system_prompt: e.target.value })}
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
             placeholder="คุณเป็น AI Assistant สำหรับ..."
           />
         </div>
@@ -351,7 +351,7 @@ export default function AIConfigPage() {
                   type="text"
                   value={item}
                   onChange={(e) => updateGuideline('tone', index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
                   onClick={() => removeGuideline('tone', index)}
@@ -380,7 +380,7 @@ export default function AIConfigPage() {
                   type="text"
                   value={item}
                   onChange={(e) => updateGuideline('style', index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
                   onClick={() => removeGuideline('style', index)}
@@ -409,7 +409,7 @@ export default function AIConfigPage() {
                   type="text"
                   value={item}
                   onChange={(e) => updateGuideline('context', index, e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
                   onClick={() => removeGuideline('context', index)}
@@ -440,7 +440,7 @@ export default function AIConfigPage() {
                 value={config.additional_instructions || ''}
                 onChange={(e) => setConfig({ ...config, additional_instructions: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="เพิ่มคำแนะนำพิเศษสำหรับ AI..."
               />
             </div>
@@ -452,7 +452,7 @@ export default function AIConfigPage() {
                 type="text"
                 value={config.fallback_message}
                 onChange={(e) => setConfig({ ...config, fallback_message: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           </div>
