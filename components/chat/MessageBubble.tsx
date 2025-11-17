@@ -383,24 +383,36 @@ export function MessageBubble({
         )
 
       case 'file':
+        // ดึงชื่อไฟล์จาก metadata
+        const fileName = (message.metadata as any)?.file_name || 
+                        (message.metadata as any)?.fileName || 
+                        message.content?.replace('[ไฟล์: ', '').replace(']', '') ||
+                        'ไฟล์แนบ'
+        const fileSize = (message.metadata as any)?.file_size || 
+                        (message.metadata as any)?.fileSize || 
+                        message.media_size
+        const fileUrl = message.media_url || (message.metadata as any)?.line_media_url
+        
         return (
           <div className="flex items-center space-x-3 p-3 bg-white bg-opacity-10 rounded-lg">
             <FileText className="w-8 h-8 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate">
-                {message.content || 'ไฟล์แนบ'}
+                {fileName}
               </div>
-              {message.media_size && (
+              {fileSize && (
                 <div className="text-xs opacity-75">
-                  {formatFileSize(message.media_size)}
+                  {formatFileSize(fileSize)}
                 </div>
               )}
             </div>
-            {message.media_url && (
+            {fileUrl && (
               <a
-                href={message.media_url}
-                download
+                href={fileUrl}
+                download={fileName}
                 className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <Download className="w-4 h-4" />
               </a>
