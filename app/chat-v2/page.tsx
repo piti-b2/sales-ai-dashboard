@@ -16,6 +16,9 @@ import {
   Circle,
   Menu,
   X,
+  Pause,
+  Play,
+  Clock,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -52,6 +55,9 @@ function ChatPageV2Content() {
   const [aiSuggestion, setAISuggestion] = useState('')
   const [loadingAI, setLoadingAI] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isAutoReplyPaused, setIsAutoReplyPaused] = useState(false)
+  const [pausedUntil, setPausedUntil] = useState<string | null>(null)
+  const [showPauseMenu, setShowPauseMenu] = useState(false)
 
   // Current user ID (ในระบบจริงจะดึงจาก auth)
   const currentUserId = 'agent@example.com'
@@ -183,6 +189,85 @@ function ChatPageV2Content() {
       console.error('Error toggling AI:', error)
     }
   }
+
+  // ตรวจสอบสถานะ AI Auto-Reply
+  const checkAutoReplyStatus = async () => {
+    if (!selectedRoomId) return
+
+    try {
+      const selectedRoom = rooms.find((r) => r.id === selectedRoomId)
+      if (!selectedRoom) return
+
+      const response = await fetch(
+        `/api/ai-auto-reply?userId=${selectedRoom.customer_user_id}`
+      )
+      const data = await response.json()
+
+      setIsAutoReplyPaused(data.isPaused)
+      setPausedUntil(data.pausedUntil)
+    } catch (error) {
+      console.error('Error checking auto-reply status:', error)
+    }
+  }
+
+  // หยุด AI Auto-Reply
+  const pauseAutoReply = async (duration: number) => {
+    if (!selectedRoomId) return
+
+    try {
+      const selectedRoom = rooms.find((r) => r.id === selectedRoomId)
+      if (!selectedRoom) return
+
+      const response = await fetch('/api/ai-auto-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: selectedRoom.customer_user_id,
+          duration,
+          adminUserId: currentUserId,
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setIsAutoReplyPaused(true)
+        setPausedUntil(data.pausedUntil)
+        setShowPauseMenu(false)
+      }
+    } catch (error) {
+      console.error('Error pausing auto-reply:', error)
+    }
+  }
+
+  // เปิด AI Auto-Reply
+  const resumeAutoReply = async () => {
+    if (!selectedRoomId) return
+
+    try {
+      const selectedRoom = rooms.find((r) => r.id === selectedRoomId)
+      if (!selectedRoom) return
+
+      const response = await fetch(
+        `/api/ai-auto-reply?userId=${selectedRoom.customer_user_id}`,
+        { method: 'DELETE' }
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setIsAutoReplyPaused(false)
+        setPausedUntil(null)
+      }
+    } catch (error) {
+      console.error('Error resuming auto-reply:', error)
+    }
+  }
+
+  // ตรวจสอบสถานะเมื่อเปลี่ยนห้อง
+  useEffect(() => {
+    if (selectedRoomId) {
+      checkAutoReplyStatus()
+    }
+  }, [selectedRoomId])
 
   const fetchAISuggestion = async (customerMessage: string) => {
     try {
@@ -395,7 +480,7 @@ function ChatPageV2Content() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {/* Toggle AI Button */}
+                {/* Toggle AI Assistant Button */}
                 <button
                   onClick={toggleAI}
                   className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
@@ -416,6 +501,75 @@ function ChatPageV2Content() {
                     </>
                   )}
                 </button>
+
+                {/* AI Auto-Reply Control */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      if (isAutoReplyPaused) {
+                        resumeAutoReply()
+                      } else {
+                        setShowPauseMenu(!showPauseMenu)
+                      }
+                    }}
+                    className={`px-3 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-1 ${
+                      isAutoReplyPaused
+                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    {isAutoReplyPaused ? (
+                      <>
+                        <Play className="w-4 h-4" />
+                        <span>Auto-Reply หยุด</span>
+                        {pausedUntil && (
+                          <Clock className="w-3 h-3 ml-1" />
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="w-4 h-4" />
+                        <span>Auto-Reply เปิด</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Pause Duration Menu */}
+                  {showPauseMenu && !isAutoReplyPaused && (
+                    <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 min-w-[180px]">
+                      <div className="px-3 py-2 text-xs text-gray-500 font-medium border-b border-gray-100">
+                        หยุด AI Auto-Reply
+                      </div>
+                      <button
+                        onClick={() => pauseAutoReply(30)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        30 นาที
+                      </button>
+                      <button
+                        onClick={() => pauseAutoReply(60)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        60 นาที
+                      </button>
+                      <button
+                        onClick={() => pauseAutoReply(120)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Clock className="w-4 h-4" />
+                        2 ชั่วโมง
+                      </button>
+                      <button
+                        onClick={() => setShowPauseMenu(false)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-500 hover:bg-gray-50 border-t border-gray-100 mt-1"
+                      >
+                        ยกเลิก
+                      </button>
+                    </div>
+                  )}
+                </div>
                 
                 <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                   <Phone className="w-5 h-5 text-gray-600" />
