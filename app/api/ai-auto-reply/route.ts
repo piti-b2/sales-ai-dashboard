@@ -59,15 +59,18 @@ export async function POST(request: NextRequest) {
     const pausedUntil = new Date()
     pausedUntil.setMinutes(pausedUntil.getMinutes() + duration)
 
-    // บันทึกการหยุด AI
+    // บันทึกการหยุด AI (UPSERT - อัปเดตถ้ามีอยู่แล้ว)
     const { data, error } = await supabase
       .from('line_pauses')
-      .insert({
+      .upsert({
         user_id: userId,
         paused_until: pausedUntil.toISOString(),
         admin_user_id: adminUserId || userId,
         group_id: groupId || null,
         reason: `Paused by admin for ${duration} min`,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id'
       })
       .select()
       .single()
