@@ -71,6 +71,40 @@ export function MessageBubble({
           // ไม่ใช่ JSON ให้แสดงเป็นข้อความธรรมดา
         }
 
+        // ถ้าเป็น image gallery ให้แสดงเป็น grid
+        if (parsedContent?.action === 'show_image_gallery' && parsedContent?.images) {
+          return (
+            <div className="space-y-3">
+              {/* ข้อความหลัก */}
+              {parsedContent.message && (
+                <div className="text-sm mb-3">
+                  {parsedContent.message}
+                </div>
+              )}
+              
+              {/* Image Gallery Grid */}
+              <div className="grid grid-cols-3 gap-2 max-w-md">
+                {parsedContent.images.map((imageUrl: string, index: number) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border border-gray-200"
+                    onClick={() => onImageClick?.(imageUrl)}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-image.png'
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        }
+
         // ถ้าเป็น product carousel ให้แสดงเป็น card
         if (parsedContent?.action === 'show_product_carousel' && parsedContent?.products) {
           return (
